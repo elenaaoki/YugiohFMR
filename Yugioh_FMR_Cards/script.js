@@ -8,6 +8,7 @@ const atkFilter = document.getElementById('atkFilter');
 const defFilter = document.getElementById('defFilter');
 const starchipFilter = document.getElementById('starchipFilter');
 const tableBody = document.getElementById('tableBody');
+const copyAllBtn = document.getElementById('copyAll');
 const toggleFiltersBtn = document.getElementById('toggleFilters');
 const filterSection = document.getElementById('filterSection');
 
@@ -20,7 +21,8 @@ toggleFiltersBtn.addEventListener('click', () => {
 // Populate filters on load
 document.addEventListener('DOMContentLoaded', () => {
     // Set initial display state for filter section
-    filterSection.style.display = 'grid';
+    filterSection.style.display = 'none';
+    toggleFiltersBtn.textContent = 'Show Filters';
     
     const uniqueValues = {
         'Card Type': new Set(),
@@ -119,12 +121,40 @@ function renderTable(data) {
         Object.values(card).forEach(value => {
             const td = document.createElement('td');
             td.textContent = value || '';
+            td.addEventListener('click', () => copyContent(td, value));
             tr.appendChild(td);
         });
         
         tableBody.appendChild(tr);
     });
 }
+
+// Copy content function
+function copyContent(element, content) {
+    navigator.clipboard.writeText(content).then(() => {
+        element.classList.add('copied');
+        setTimeout(() => {
+            element.classList.remove('copied');
+        }, 1000);
+    });
+}
+
+// Copy all function
+copyAllBtn.addEventListener('click', () => {
+    const visibleRows = Array.from(tableBody.querySelectorAll('tr'));
+    const content = visibleRows.map(row => {
+        return Array.from(row.cells)
+            .map(cell => cell.textContent)
+            .join('\t');
+    }).join('\n');
+
+    navigator.clipboard.writeText(content).then(() => {
+        copyAllBtn.textContent = 'Copied!';
+        setTimeout(() => {
+            copyAllBtn.textContent = 'Copy All';
+        }, 1000);
+    });
+});
 
 // Event listeners with debounce
 function debounce(func, wait) {
@@ -145,3 +175,4 @@ levelFilter.addEventListener('change', filterAndDisplayData);
 atkFilter.addEventListener('change', filterAndDisplayData);
 defFilter.addEventListener('change', filterAndDisplayData);
 starchipFilter.addEventListener('change', filterAndDisplayData);
+

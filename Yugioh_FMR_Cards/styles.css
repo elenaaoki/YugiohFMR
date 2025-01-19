@@ -39,6 +39,7 @@ h1 {
   cursor: pointer;
   min-width: 120px;
   text-align: center;
+  white-space: nowrap;
 }
 
 .toggle-filters-btn:hover {
@@ -46,7 +47,7 @@ h1 {
 }
 
 .filters {
-  display: grid;
+  display: none;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 15px;
   margin-bottom: 20px;
@@ -72,6 +73,22 @@ h1 {
   position: relative;
 }
 
+.copy-all-btn {
+  position: absolute;
+  right: 0;
+  top: -40px;
+  padding: 8px 16px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.copy-all-btn:hover {
+  background-color: #cc0000;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -85,7 +102,7 @@ td {
   border-bottom: 1px solid #ddd;
   position: relative;
   background-color: black;
-    color: white;
+  color: white;
 }
 
 th {
@@ -95,9 +112,54 @@ th {
   top: 0;
 }
 
+td {
+  cursor: pointer;
+}
+
+td:hover::after {
+  content: "Click to copy";
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
+td.copied::after {
+  content: "Copied!";
+  position: absolute;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
 @media (max-width: 768px) {
   .filters {
     grid-template-columns: 1fr;
+  }
+
+  .search-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toggle-filters-btn {
+    width: 100%;
   }
 }
 
