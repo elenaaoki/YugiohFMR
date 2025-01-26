@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yu-Gi-Oh! Forbidden Memories Drop Cards</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 10px;
+            background: #f0f0f0;
+        }
+
+        .search-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+        }
+
+        #showFilters {
+            width: 100%;
+            padding: 10px;
+            background: #cc0000;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .filters {
+            display: none;
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .filters.show {
+            display: block;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #000;
+            color: white;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        .character-select {
+            width: 100%;
+            padding: 5px 10px;
+            background: #000;
+            color: white;
+            border: none;
+            margin-top: 10px;
+        }
+
+        .tables-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .table-wrapper {
+            background: white;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #000;
+            color: #ffd700;
+            padding: 10px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th:last-child {
+            background: #cc0000;
+        }
+
+        td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 2px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #eee;
+            border: none;
+            padding: 2px 5px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        tr:hover .copy-btn {
+            opacity: 1;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            .search-container {
+                flex-direction: row;
+            }
+
+            #searchInput {
+                flex-grow: 1;
+            }
+
+            #showFilters {
+                width: auto;
+            }
+
+            .tables-container {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+
+            .character-select {
+                width: auto;
+                margin-top: 0;
+            }
+
+            th, td {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search for cards...">
+        <button id="showFilters">Show Filters</button>
+    </div>
+
+    <div class="filters" id="filtersContainer">
+        <div class="checkbox-group">
+            <label class="checkbox-container">
+                <input type="checkbox" class="filter-checkbox" data-type="saPow" checked>
+                S-A POW
+            </label>
+            <label class="checkbox-container">
+                <input type="checkbox" class="filter-checkbox" data-type="bcdPowTec" checked>
+                B-C-D POW/TEC
+            </label>
+            <label class="checkbox-container">
+                <input type="checkbox" class="filter-checkbox" data-type="saTec" checked>
+                S-A TEC
+            </label>
+        </div>
+        <select id="characterSelect" class="character-select">
+            <option value="all">ALL</option>
+        </select>
+    </div>
+
+    <div class="tables-container">
+        <div class="table-wrapper" data-type="saPow">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Characters</th>
+                        <th>S-A Pow</th>
+                        <th>%</th>
+                    </tr>
+                </thead>
+                <tbody id="saPowTable"></tbody>
+            </table>
+        </div>
+
+        <div class="table-wrapper" data-type="bcdPowTec">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Characters</th>
+                        <th>B-C-D Pow/Tec</th>
+                        <th>%</th>
+                    </tr>
+                </thead>
+                <tbody id="bcdPowTecTable"></tbody>
+            </table>
+        </div>
+
+        <div class="table-wrapper" data-type="saTec">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Characters</th>
+                        <th>S-A Tec</th>
+                        <th>%</th>
+                    </tr>
+                </thead>
+                <tbody id="saTecTable"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        // DOM Elements
+        const searchInput = document.getElementById('searchInput');
+        const showFiltersBtn = document.getElementById('showFilters');
+        const filtersContainer = document.getElementById('filtersContainer');
+        const characterSelect = document.getElementById('characterSelect');
+        const filterCheckboxes = document.querySelectorAll('.filter-checkbox');
+        const tableWrappers = document.querySelectorAll('.table-wrapper');
+
+        // Populate character select
+        const uniqueCharacters = [...new Set(cardDatabase.map(data => data.character))];
+        uniqueCharacters.forEach(character => {
+            const option = document.createElement('option');
+            option.value = character;
+            option.textContent = character;
+            characterSelect.appendChild(option);
+        });
+
+        // Toggle filters
+        showFiltersBtn.addEventListener('click', () => {
+            filtersContainer.classList.toggle('show');
+            showFiltersBtn.textContent = filtersContainer.classList.contains('show') ? 'Hide Filters' : 'Show Filters';
+        });
+
+        // Copy button functionality
+        function createCopyButton(text) {
+            const btn = document.createElement('button');
+            btn.className = 'copy-btn';
+            btn.textContent = 'Copy';
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(text);
+                btn.textContent = 'Copied!';
+                setTimeout(() => btn.textContent = 'Copy', 1000);
+            });
+            return btn;
+        }
+
+        // Normalize search terms
+        function normalizeText(text) {
+            return text.toLowerCase().replace(/[-\s]+/g, '');
+        }
+
+        // Filter and render tables
+        function renderTables() {
+            const searchTerm = normalizeText(searchInput.value);
+            const selectedCharacter = characterSelect.value;
+
+            // Get visible categories from checkboxes
+            const visibleCategories = Array.from(filterCheckboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.dataset.type);
+
+            // Update table visibility
+            tableWrappers.forEach(wrapper => {
+                wrapper.style.display = visibleCategories.includes(wrapper.dataset.type) ? 'block' : 'none';
+            });
+
+            // Helper function to create table rows
+            function createTableRow(character, card, category) {
+                if (searchTerm && !normalizeText(card.name).includes(searchTerm)) {
+                    return null;
+                }
+
+                const row = document.createElement('tr');
+                const cells = [
+                    { text: character, copyText: character },
+                    { text: `${card.name} ${card.stats}`, copyText: card.name },
+                    { text: card.percentage, copyText: card.percentage }
+                ];
+
+                cells.forEach(({ text, copyText }) => {
+                    const td = document.createElement('td');
+                    td.textContent = text;
+                    td.appendChild(createCopyButton(copyText));
+                    row.appendChild(td);
+                });
+
+                return row;
+            }
+
+            // Clear all tables
+            document.getElementById('saPowTable').innerHTML = '';
+            document.getElementById('bcdPowTecTable').innerHTML = '';
+            document.getElementById('saTecTable').innerHTML = '';
+
+            // Filter and render data
+            cardDatabase.forEach(data => {
+                if (selectedCharacter === 'all' || selectedCharacter === data.character) {
+                    if (visibleCategories.includes('saPow')) {
+                        const tbody = document.getElementById('saPowTable');
+                        data.saPow.forEach(card => {
+                            const row = createTableRow(data.character, card, 'saPow');
+                            if (row) tbody.appendChild(row);
+                        });
+                    }
+
+                    if (visibleCategories.includes('bcdPowTec')) {
+                        const tbody = document.getElementById('bcdPowTecTable');
+                        data.bcdPowTec.forEach(card => {
+                            const row = createTableRow(data.character, card, 'bcdPowTec');
+                            if (row) tbody.appendChild(row);
+                        });
+                    }
+
+                    if (visibleCategories.includes('saTec')) {
+                        const tbody = document.getElementById('saTecTable');
+                        data.saTec.forEach(card => {
+                            const row = createTableRow(data.character, card, 'saTec');
+                            if (row) tbody.appendChild(row);
+                        });
+                    }
+                }
+            });
+        }
+
+        // Event listeners
+        searchInput.addEventListener('input', renderTables);
+        characterSelect.addEventListener('change', renderTables);
+        filterCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', renderTables);
+        });
+
+        // Initial render
+        renderTables();
+    </script>
+</body>
+</html>
+
