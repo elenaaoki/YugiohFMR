@@ -276,12 +276,27 @@
 
         // Normalize search terms
         function normalizeText(text) {
-            return text.toLowerCase().replace(/[-\s]+/g, '');
+            return text.toLowerCase()
+                .replace(/[-\s'.,]+/g, '') // Remove spaces, hyphens, apostrophes, periods, and commas
+                .replace(/(\w)\1+/g, '$1'); // Remove consecutive duplicate characters
+        }
+
+        // Check if two strings are similar
+        function areSimilar(str1, str2) {
+            const norm1 = normalizeText(str1);
+            const norm2 = normalizeText(str2);
+
+            // Special case for "Blue Eyes"
+            if (norm1.includes('blueeyes') || norm2.includes('blueeyes')) {
+                return norm1.includes('blueeyes') && norm2.includes('blueeyes');
+            }
+
+            return norm1.includes(norm2) || norm2.includes(norm1);
         }
 
         // Filter and render tables
         function renderTables() {
-            const searchTerm = normalizeText(searchInput.value);
+            const searchTerm = searchInput.value.trim().toLowerCase();
             const selectedCharacter = characterSelect.value;
 
             // Get visible categories from checkboxes
@@ -296,7 +311,10 @@
 
             // Helper function to create table rows
             function createTableRow(character, card, category) {
-                if (searchTerm && !normalizeText(card.name).includes(searchTerm)) {
+                if (searchTerm && 
+                    !areSimilar(card.name, searchTerm) && 
+                    !areSimilar(character, searchTerm) && 
+                    !normalizeText(card.percentage).includes(normalizeText(searchTerm))) {
                     return null;
                 }
 
@@ -364,4 +382,3 @@
     </script>
 </body>
 </html>
-
