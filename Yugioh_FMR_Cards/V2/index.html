@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pencarian Daftar Kartu Yu-Gi-Oh! Forbidden Memories</title>
+   <style>
+        * {
+            box-sizing: border-box !important;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            line-height: 1.6;
+            padding: 0px;
+            background-color: none;
+        }
+
+        .container {
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            padding: 0px !important;
+            overflow-x: hidden !important;
+        }
+
+        h1 {
+            text-align: center !important;
+            margin-bottom: 20px !important;
+            color: #333;
+        }
+
+        .search-section {
+            margin-bottom: 20px !important;
+            display: flex !important;
+            gap: 10px !important;
+            align-items: center !important;
+        }
+
+        .search-input {
+            flex: 1 !important;
+            padding: 10px !important;
+            font-size: 16px !important;
+            border: 2px solid #ddd !important;
+            border-radius: 4px !important;
+            width: 100% !important;
+        }
+
+        .toggle-filters-btn {
+            padding: 10px 20px !important;
+            background-color: #cc0000 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 4px !important;
+            cursor: pointer !important;
+            min-width: 120px !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+        }
+
+        .toggle-filters-btn:hover {
+            background-color: #990000 !important;
+        }
+
+        .filters {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+            gap: 15px !important;
+            margin-bottom: 20px !important;
+            transition: none !important;
+            width: 100% !important;
+        }
+
+        .filter-group {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 5px !important;
+        }
+
+        .filter-input,
+        .filter-select {
+            padding: 8px !important;
+            border: 1px solid #ddd !important;
+            border-radius: 4px !important;
+            width: 100% !important;
+        }
+
+        .table-container {
+            overflow-x: auto !important;
+            position: relative !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            cursor: grab !important;
+            scroll-behavior: smooth !important;
+            -webkit-overflow-scrolling: touch !important;
+        }
+
+        .table-container:active {
+            cursor: grabbing !important;
+        }
+
+        .table-container::-webkit-scrollbar {
+            height: 8px !important;
+        }
+
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1 !important;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #888 !important;
+            border-radius: 4px !important;
+        }
+
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #555 !important;
+        }
+
+        .copy-all-btn {
+            position: absolute !important;
+            right: 0 !important;
+            top: -40px !important;
+            padding: 8px 16px !important;
+            background-color: #cc0000 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 4px !important;
+            cursor: pointer !important;
+        }
+
+        .copy-all-btn:hover {
+            background-color: #cc0000 !important;
+        }
+
+        table {
+            width: auto !important;
+            border-collapse: collapse !important;
+            margin-top: 20px !important;
+            table-layout: fixed !important;
+            min-width: 1500px !important;
+        }
+
+        th,
+        td {
+            padding: 12px !important;
+            text-align: left !important;
+            border-bottom: 1px solid #ddd !important;
+            position: relative !important;
+            background-color: black !important;
+            color: white !important;
+            word-wrap: normal !important;
+            overflow-wrap: normal !important;
+            white-space: nowrap !important;
+            min-width: 150px !important;
+        }
+
+        th:nth-child(2),
+        td:nth-child(2) {
+            min-width: 250px !important;
+        }
+th:nth-child(1),
+td:nth-child(1),
+th:nth-child(2),
+td:nth-child(2),
+th:nth-child(3),
+td:nth-child(3),
+th:nth-child(4),
+td:nth-child(4),	
+th:nth-child(5),
+td:nth-child(5),
+th:nth-child(6),
+td:nth-child(6),
+th:nth-child(7),
+td:nth-child(7),
+th:nth-child(8),
+td:nth-child(8),
+th:nth-child(9),
+td:nth-child(9),
+th:nth-child(10),
+td:nth-child(10),
+th:nth-child(11),
+td:nth-child(11) {
+    min-width: 80px !important;
+    width: 80px !important;
+}
+
+        th {
+            background-color: #cc0000 !important;
+            color: white !important;
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 10 !important;
+        }
+
+        td {
+            cursor: pointer !important;
+        }
+
+        td:hover::after {
+            content: "Click to copy" !important;
+            position: absolute !important;
+            background: rgba(0, 0, 0, 0.8) !important;
+            color: white !important;
+            padding: 4px 8px !important;
+            border-radius: 4px !important;
+            font-size: 12px !important;
+            bottom: 100% !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            white-space: nowrap !important;
+            pointer-events: none !important;
+            z-index: 10 !important;
+        }
+
+        td.copied::after {
+            content: "Copied!" !important;
+            position: absolute !important;
+            background: rgba(0, 0, 0, 0.8) !important;
+            color: white !important;
+            padding: 4px 8px !important;
+            border-radius: 4px !important;
+            font-size: 12px !important;
+            bottom: 100% !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            white-space: nowrap !important;
+            pointer-events: none !important;
+            z-index: 10 !important;
+        }
+
+        .scroll-buttons {
+            display: none;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .scroll-button {
+            padding: 5px 10px;
+            background-color: #cc0000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .scroll-button:hover {
+            background-color: #990000;
+        }
+
+        @media (max-width: 768px) {
+            .filters {
+                grid-template-columns: 1fr !important;
+            }
+
+            .search-section {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+
+            .toggle-filters-btn {
+                width: 100% !important;
+            }
+
+            .container {
+                padding: 10px !important;
+            }
+
+            .scroll-buttons {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Pencarian Daftar Kartu Yu-Gi-Oh! Forbidden Memories</h1>
+       <!-- Global Search -->
+        <div class="search-section">
+            <input 
+                type="text" 
+                id="globalSearch" 
+                placeholder="Cari kartu..." 
+                class="search-input"
+            >
+            <button id="toggleFilters" class="toggle-filters-btn">
+                Show Filters
+            </button>
+        </div>
+
+        <!-- Category Filters -->
+        <div class="filters" id="filterSection">
+            <div class="filter-group">
+                <label>Card Number:</label>
+                <input type="text" id="cardNumberFilter" class="filter-input">
+            </div>
+            <div class="filter-group">
+                <label>Card Type:</label>
+                <select id="cardTypeFilter" class="filter-select"></select>
+            </div>
+            <div class="filter-group">
+                <label>Type:</label>
+                <select id="typeFilter" class="filter-select"></select>
+            </div>
+            <div class="filter-group">
+                <label>Guardian Star 1:</label>
+                <select id="guardianStar1Filter" class="filter-select"></select>
+            </div>
+            <div class="filter-group">
+                <label>Guardian Star 2:</label>
+                <select id="guardianStar2Filter" class="filter-select"></select>
+            </div>
+            <div class="filter-group">
+                <label>Level:</label>
+                <select id="levelFilter" class="filter-select"></select>
+            </div>
+            <div class="filter-group">
+                <label>ATK:</label>
+                <select id="atkFilter" class="filter-select"></select>
+            </div>
+            <div class="filter-group">
+                <label>DEF:</label>
+                <select id="defFilter" class="filter-select"></select>
+            </div>
+            <div class="filter-group">
+                <label>Starchip Cost:</label>
+                <select id="starchipFilter" class="filter-select"></select>
+            </div>
+        </div>
+
+        <!-- Results Table -->
+        <div class="table-container" id="tableContainer">
+            <button id="copyAll" class="copy-all-btn">Copy All</button>
+            <table id="cardsTable">
+                <thead>
+<tr>
+    <th>Card Number</th>
+    <th>Card</th>
+    <th>Card Type</th>
+    <th>Type</th>
+    <th>G.S. 1</th>
+    <th>G.S. 2</th>
+    <th>Level</th>
+    <th>ATK</th>
+    <th>DEF</th>
+    <th>Password</th>
+    <th>Starchip Cost</th>
+</tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+        <div class="scroll-buttons">
+            <button id="scrollLeft" class="scroll-button">Scroll Left</button>
+            <button id="scrollRight" class="scroll-button">Scroll Right</button>
+        </div>
+    </div>
+
+<script src="https://elenaaoki.github.io/YugiohFMR/Yugioh_FMR_Cards/V2/datav2.js"></script>
+<script>
+    // Cache DOM elements
+    const globalSearch = document.getElementById('globalSearch');
+    const cardNumberFilter = document.getElementById('cardNumberFilter');
+    const cardTypeFilter = document.getElementById('cardTypeFilter');
+    const typeFilter = document.getElementById('typeFilter');
+    const guardianStar1Filter = document.getElementById('guardianStar1Filter');
+    const guardianStar2Filter = document.getElementById('guardianStar2Filter');
+    const levelFilter = document.getElementById('levelFilter');
+    const atkFilter = document.getElementById('atkFilter');
+    const defFilter = document.getElementById('defFilter');
+    const starchipFilter = document.getElementById('starchipFilter');
+    const tableBody = document.getElementById('tableBody');
+    const copyAllBtn = document.getElementById('copyAll');
+    const toggleFiltersBtn = document.getElementById('toggleFilters');
+    const filterSection = document.getElementById('filterSection');
+    const tableContainer = document.getElementById('tableContainer');
+    const scrollLeftBtn = document.getElementById('scrollLeft');
+    const scrollRightBtn = document.getElementById('scrollRight');
+
+    // Set initial state for filters and button
+    filterSection.style.display = 'none';
+    toggleFiltersBtn.textContent = 'Show Filters';
+
+    // Toggle filters visibility
+    toggleFiltersBtn.addEventListener('click', () => {
+        filterSection.style.display = filterSection.style.display === 'none' ? 'grid' : 'none';
+        toggleFiltersBtn.textContent = filterSection.style.display === 'none' ? 'Show Filters' : 'Hide Filters';
+    });
+
+    // Populate filters on load
+    document.addEventListener('DOMContentLoaded', () => {
+        const uniqueValues = {
+            'Card Type': new Set(),
+            'Type': new Set(),
+            'G.S. 1': new Set(),
+            'G.S. 2': new Set(),
+            'Level': new Set(),
+            'ATK': new Set(),
+            'DEF': new Set(),
+            'Starchip Cost': new Set()
+        };
+
+        cardDatabase.forEach(card => {
+            uniqueValues['Card Type'].add(card['Card Type']);
+            uniqueValues['Type'].add(card['Type']);
+            uniqueValues['G.S. 1'].add(card['G.S. 1']);
+            uniqueValues['G.S. 2'].add(card['G.S. 2']);
+            uniqueValues['Level'].add(card['Level']);
+            uniqueValues['ATK'].add(card['ATK']);
+            uniqueValues['DEF'].add(card['DEF']);
+            uniqueValues['Starchip Cost'].add(card['Starchip Cost']);
+        });
+
+        // Populate dropdowns
+        populateSelect(cardTypeFilter, uniqueValues['Card Type']);
+        populateSelect(typeFilter, uniqueValues['Type']);
+        populateSelect(guardianStar1Filter, uniqueValues['G.S. 1']);
+        populateSelect(guardianStar2Filter, uniqueValues['G.S. 2']);
+        populateSelect(levelFilter, uniqueValues['Level']);
+        populateSelect(atkFilter, uniqueValues['ATK']);
+        populateSelect(defFilter, uniqueValues['DEF']);
+        populateSelect(starchipFilter, uniqueValues['Starchip Cost']);
+
+        // Show initial data
+        filterAndDisplayData();
+    });
+
+    function populateSelect(select, values) {
+        select.innerHTML = '<option value="">All</option>';
+        [...values].sort((a, b) => {
+            if (a === "-" || b === "-") return 0;
+            // Handle numeric sorting for ATK, DEF, and Level
+            if (!isNaN(a) && !isNaN(b)) {
+                return Number(a) - Number(b);
+            }
+            // Handle string sorting for other fields
+            return String(a).localeCompare(String(b));
+        }).forEach(value => {
+            if (value !== undefined && value !== "" && value !== null) {
+                const option = new Option(value, value);
+                select.add(option);
+            }
+        });
+    }
+
+    // Normalize search terms
+    function normalizeSearchTerm(term) {
+        return String(term).toLowerCase().replace(/-/g, ' ');
+    }
+
+    // Filter and display data
+    function filterAndDisplayData() {
+        const searchTerm = normalizeSearchTerm(globalSearch.value);
+        const cardNumberTerm = cardNumberFilter.value.toLowerCase();
+        const cardTypeValue = cardTypeFilter.value;
+        const typeValue = typeFilter.value;
+        const guardianStar1Value = guardianStar1Filter.value;
+        const guardianStar2Value = guardianStar2Filter.value;
+        const levelValue = levelFilter.value;
+        const atkValue = atkFilter.value;
+        const defValue = defFilter.value;
+        const starchipValue = starchipFilter.value;
+
+        const filteredData = cardDatabase.filter(card => {
+            // Global search across all fields
+            const cardString = Object.values(card).join(' ').toLowerCase();
+            const normalizedCardString = normalizeSearchTerm(cardString);
+            const matchesGlobal = !searchTerm || normalizedCardString.includes(searchTerm);
+
+            // Individual filters
+            const matchesCardNumber = !cardNumberTerm || card['Card Number'].toLowerCase().includes(cardNumberTerm);
+            const matchesCardType = !cardTypeValue || card['Card Type'] === cardTypeValue;
+            const matchesType = !typeValue || card['Type'] === typeValue;
+            const matchesGuardianStar1 = !guardianStar1Value || card['G.S. 1'] === guardianStar1Value;
+            const matchesGuardianStar2 = !guardianStar2Value || card['G.S. 2'] === guardianStar2Value;
+            const matchesLevel = !levelValue || String(card['Level']) === levelValue;
+            const matchesAtk = !atkValue || String(card['ATK']) === atkValue;
+            const matchesDef = !defValue || String(card['DEF']) === defValue;
+            const matchesStarchip = !starchipValue || String(card['Starchip Cost']) === starchipValue;
+
+            return matchesGlobal && matchesCardNumber && matchesCardType && 
+                   matchesType && matchesGuardianStar1 && matchesGuardianStar2 && 
+                   matchesLevel && matchesAtk && matchesDef && matchesStarchip;
+        });
+
+        renderTable(filteredData);
+    }
+
+    // Render table with data
+    function renderTable(data) {
+        tableBody.innerHTML = '';
+        
+        data.forEach(card => {
+            const tr = document.createElement('tr');
+            
+            const columns = [
+                { key: 'Card Number', display: card['Card Number'] },
+                { key: 'Card', display: card['Card'] },
+                { key: 'Card Type', display: card['Card Type'] },
+                { key: 'Type', display: card['Type'] },
+                { key: 'G.S. 1', display: card['G.S. 1'] },
+                { key: 'G.S. 2', display: card['G.S. 2'] },
+                { key: 'Level', display: card['Level'] },
+                { key: 'ATK', display: card['ATK'] },
+                { key: 'DEF', display: card['DEF'] },
+                { key: 'Password', display: card['Password'] },
+                { key: 'Starchip Cost', display: card['Starchip Cost'] }
+            ];
+            
+            columns.forEach(column => {
+                const td = document.createElement('td');
+                td.textContent = column.display !== undefined && column.display !== null && column.display !== '' ? column.display : '-';
+                td.addEventListener('click', () => copyContent(td, column.display || '-'));
+                tr.appendChild(td);
+            });
+            
+            tableBody.appendChild(tr);
+        });
+    }
+
+    // Copy content function
+    function copyContent(element, content) {
+        navigator.clipboard.writeText(content).then(() => {
+            element.classList.add('copied');
+            setTimeout(() => {
+                element.classList.remove('copied');
+            }, 1000);
+        });
+    }
+
+    // Copy all function
+    copyAllBtn.addEventListener('click', () => {
+        const visibleRows = Array.from(tableBody.querySelectorAll('tr'));
+        const content = visibleRows.map(row => {
+            return Array.from(row.cells)
+                .map(cell => cell.textContent)
+                .join('\t');
+        }).join('\n');
+
+        navigator.clipboard.writeText(content).then(() => {
+            copyAllBtn.textContent = 'Copied!';
+            setTimeout(() => {
+                copyAllBtn.textContent = 'Copy All';
+            }, 1000);
+        });
+    });
+
+    // Event listeners with debounce
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    const debouncedFilter = debounce(filterAndDisplayData, 300);
+
+    globalSearch.addEventListener('input', debouncedFilter);
+    cardNumberFilter.addEventListener('input', debouncedFilter);
+    cardTypeFilter.addEventListener('change', filterAndDisplayData);
+    typeFilter.addEventListener('change', filterAndDisplayData);
+    guardianStar1Filter.addEventListener('change', filterAndDisplayData);
+    guardianStar2Filter.addEventListener('change', filterAndDisplayData);
+    levelFilter.addEventListener('change', filterAndDisplayData);
+    atkFilter.addEventListener('change', filterAndDisplayData);
+    defFilter.addEventListener('change', filterAndDisplayData);
+    starchipFilter.addEventListener('change', filterAndDisplayData);
+
+    // Drag to scroll functionality
+    let isDown = false;
+    let startX;
+    let scrollLeft;
+
+    tableContainer.addEventListener('mousedown', (e) => {
+        isDown = true;
+        tableContainer.style.cursor = 'grabbing';
+        startX = e.pageX - tableContainer.offsetLeft;
+        scrollLeft = tableContainer.scrollLeft;
+    });
+
+    tableContainer.addEventListener('mouseleave', () => {
+        isDown = false;
+        tableContainer.style.cursor = 'grab';
+    });
+
+    tableContainer.addEventListener('mouseup', () => {
+        isDown = false;
+        tableContainer.style.cursor = 'grab';
+    });
+
+    tableContainer.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - tableContainer.offsetLeft;
+        const walk = (x - startX) * 2;
+        tableContainer.scrollLeft = scrollLeft - walk;
+    });
+
+    // Keyboard arrow navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+        
+        const scrollAmount = 100;
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            tableContainer.scrollLeft -= scrollAmount;
+        } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            tableContainer.scrollLeft += scrollAmount;
+        }
+    });
+
+    // Scroll button functionality
+    scrollLeftBtn.addEventListener('click', () => {
+        tableContainer.scrollLeft -= 100;
+    });
+
+    scrollRightBtn.addEventListener('click', () => {
+        tableContainer.scrollLeft += 100;
+    });
+</script>
+</body>
+</html>
