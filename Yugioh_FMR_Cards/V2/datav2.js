@@ -218,7 +218,7 @@ const cardDatabase = [
     "Level": 1,
     "ATK": 200,
     "DEF": 300,
-    "Password": 8124921,
+    "Password": 08124921,
     "Starchip Cost": 999999
   },
   {
@@ -257,7 +257,7 @@ const cardDatabase = [
     "Level": 1,
     "ATK": 200,
     "DEF": 300,
-    "Password": 7902349,
+    "Password": 07902349,
     "Starchip Cost": 999999
   },
   {
@@ -6122,7 +6122,7 @@ const cardDatabase = [
     "Level": 1,
     "ATK": 300,
     "DEF": 250,
-    "Password": 8131171,
+    "Password": 08131171,
     "Starchip Cost": 10
   },
   {
@@ -9285,4 +9285,5 @@ const cardDatabase = [
     "Password": "-",
     "Starchip Cost": "-"
   }
+
 ];
